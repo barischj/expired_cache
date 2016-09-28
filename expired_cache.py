@@ -1,3 +1,14 @@
+"""A cache with lazy background updating of data.
+
+The cached value of a function call `fn(a, k)` is updated when that call is made
+and the cached value has existed for `ttl` seconds. The cached value is updated
+in another thread and the expired cached value returned. This means that while a
+call can return an expired cached value, as many calls as possible will return
+immediately. The exceptions are the calls made before the initial cached value
+is computed. To ensure the cached value is computed as soon as possible make a
+call as soon as the module is imported.
+"""
+
 import pylru
 import threading
 import time
@@ -36,10 +47,10 @@ def Cache(object):
         return self._update(key, fn, args, kwargs)
 
 
-def cache(ttl, max_size=128):
-    cache = Cache(max_size)
-    def decorator(original_fn):
+def cache(*cache_args):
+    cache = Cache(*cache_args)
+    def wrapper(original_fn):
         def new_fn(*args, **kwargs):
             return cache.get(original_fn, args, kwargs)
         return new_fn
-    return decorator
+    return wrapper
