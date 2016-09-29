@@ -30,6 +30,11 @@ def Cache(object):
     def get(self, fn, args, kwargs):
         """Returns the currently cached copy."""
         key = (args, kwargs)
+        (expires, value) = lrucache
+
+
+
+        key = (args, kwargs)
         # If there exists a cached value.
         if key in self.cache:
             (expires, value) = lru_cache[key]
@@ -51,6 +56,6 @@ def cache(*cache_args):
     cache = Cache(*cache_args)
     def wrapper(original_fn):
         def new_fn(*args, **kwargs):
-            return cache.get(original_fn, args, kwargs)
+            return cache.get(original_fn, *args, **kwargs)
         return new_fn
     return wrapper
